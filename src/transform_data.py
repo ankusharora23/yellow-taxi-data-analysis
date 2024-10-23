@@ -16,8 +16,8 @@ def data_cleaning(df, year, month):
         pandas.DataFrame: The cleaned DataFrame.
     """
 
-    df = df[["tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_distance"]]
-    df["trip_duration"] = (
+    df = df[["tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_distance"]].copy()
+    df.loc[:, "trip_duration"] = (
         df["tpep_dropoff_datetime"] - df["tpep_pickup_datetime"]
     ).dt.total_seconds() / 60
     df = df[(df["trip_duration"] > 0) & (df["trip_distance"] > 0)]

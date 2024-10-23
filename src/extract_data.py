@@ -25,7 +25,7 @@ def download_data(year, month, file_location="data/input/"):
 
     if response.status_code != 200:
         raise Exception(f"Failed to download data: {response.status_code}")
-    file_name = f"{file_location}/yellow_tripdata_{year}-{month:02}.parquet"
+    file_name = f"{file_location}yellow_tripdata_{year}-{month:02}.parquet"
     with open(file_name, "wb") as file:
         file.write(response.content)
     return file_name
@@ -69,7 +69,7 @@ def get_previous_months(year, month, window_size):
     # Create a datetime object for the given year and month
     previous_file_needed = num_previous_file_needed(year, month, window_size)
 
-    # Calculate previous months
+    # downloads and concatenate data for previous months
 
     all_data = []
     for i in range(1, previous_file_needed + 1):

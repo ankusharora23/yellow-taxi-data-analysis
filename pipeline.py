@@ -13,17 +13,18 @@ def run_pipeline(args):
 
     logging.info("Starting the pipeline")
     file_name = extract_data.download_data(args.year, args.month)
-    logging.info(f"Downloaded data for {args.year}-{args.month} to {file_name}")
+    logging.info(f"Downloaded data for {args.year}-{args.month:02} to {file_name}")
 
     df = extract_data.extract_to_df(file_name)
     logging.info(f"Extracted data to DataFrame with {len(df)} records")
 
     df = transform_data.data_cleaning(df, args.year, args.month)
-    logging.info(f"Data cleaned and number of records is {len(df)} records")
+    logging.info(f"Data cleaned and number of records is {len(df)}")
 
     monthly_avg = transform_data.calculate_monthly_average(df, args.month)
-    logging.info(f"Calculated monthly average trip lengths: {monthly_avg} ")
+    logging.info(f"Calculated monthly average trip lengths:{monthly_avg} ")
 
+    #table name to store monthly avg is "monthly_avg_trip_length"
     load_data.store_results(monthly_avg, args.db_name, "monthly_avg_trip_length")
     logging.info("Stored monthly average trip lengths")
 
@@ -43,6 +44,7 @@ def run_pipeline(args):
     )
     logging.info("Calculated rolling average")
 
+    #table name to store rolling avg is "yellow_taxi_data"
     load_data.store_results(rolling_avg, args.db_name, "yellow_taxi_data")
     logging.info("Stored rolling average data")
 
@@ -50,7 +52,7 @@ def run_pipeline(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Taxi Data Pipeline")
+    parser = argparse.ArgumentParser(description="NYC Yellow Taxi Data Pipeline")
     parser.add_argument("--year", type=int, required=True, help="Year of the data to process")
     parser.add_argument("--month", type=int, required=True, help="Month of the data to process")
     parser.add_argument(
