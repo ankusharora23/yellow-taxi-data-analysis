@@ -12,8 +12,10 @@ logging.basicConfig(
 def run_pipeline(args):
 
     logging.info("Starting the pipeline")
-    file_name = extract_data.download_data(args.year, args.month)
-    logging.info(f"Downloaded data for {args.year}-{args.month:02} to {file_name}")
+    url = "https://d37ci6vzurychx.cloudfront.net/trip-data/"
+
+    file_name = extract_data.download_data(args.year, args.month, url)["file_name"]
+    logging.info(f"Downloaded data for {args.year}-{args.month} to {file_name}")
 
     df = extract_data.extract_to_df(file_name)
     logging.info(f"Extracted data to DataFrame with {len(df)} records")
@@ -24,12 +26,11 @@ def run_pipeline(args):
     monthly_avg = transform_data.calculate_monthly_average(df, args.month)
     logging.info(f"Calculated monthly average trip lengths:{monthly_avg} ")
 
-    #table name to store monthly avg is "monthly_avg_trip_length"
     load_data.store_results(monthly_avg, args.db_name, "monthly_avg_trip_length")
     logging.info("Stored monthly average trip lengths")
 
     concat_all_previous_data = extract_data.get_previous_months(
-        args.year, args.month, args.window_size
+        args.year, args.month, args.window_size, url
     )
     logging.info("Retrieved previous months' data")
 
@@ -44,7 +45,6 @@ def run_pipeline(args):
     )
     logging.info("Calculated rolling average")
 
-    #table name to store rolling avg is "yellow_taxi_data"
     load_data.store_results(rolling_avg, args.db_name, "yellow_taxi_data")
     logging.info("Stored rolling average data")
 
@@ -53,8 +53,12 @@ def run_pipeline(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NYC Yellow Taxi Data Pipeline")
-    parser.add_argument("--year", type=int, required=True, help="Year of the data to process")
-    parser.add_argument("--month", type=int, required=True, help="Month of the data to process")
+    parser.add_argument(
+        "--year", type=int, required=True, help="Year of the data to process"
+    )
+    parser.add_argument(
+        "--month", type=int, required=True, help="Month of the data to process"
+    )
     parser.add_argument(
         "--window-size",
         type=int,

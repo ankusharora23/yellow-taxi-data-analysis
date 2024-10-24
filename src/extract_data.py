@@ -8,7 +8,7 @@ from dateutil.relativedelta import relativedelta
 from src import transform_data
 
 
-def download_data(year, month, file_location="data/input/"):
+def download_data(year, month, url, file_location="data/input"):
     """
     Downloads yellow taxi trip data for a specified year and month from a remote server and saves it as a parquet file.
     Args:
@@ -20,15 +20,20 @@ def download_data(year, month, file_location="data/input/"):
         Exception: If the data download fails with a status code other than 200.
     """
 
-    url = f"https://d37ci6vzurychx.cloudfront.net/trip-data/yellow_tripdata_{year}-{month:02}.parquet"
-    response = requests.get(url)
+    file_name = f"yellow_tripdata_{year}-{month:02}.parquet"
+    response = requests.get(f"{url}{file_name}")
+
+    if not os.path.exists(file_location):
+        os.makedirs(file_location)
 
     if response.status_code != 200:
         raise Exception(f"Failed to download data: {response.status_code}")
-    file_name = f"{file_location}yellow_tripdata_{year}-{month:02}.parquet"
+    file_name = f"{file_location}/{file_name}"
     with open(file_name, "wb") as file:
         file.write(response.content)
-    return file_name
+
+    resp = {"file_name": file_name, "status": response.status_code}
+    return resp
 
 
 def extract_to_df(file_name):
@@ -53,7 +58,7 @@ def num_previous_file_needed(year, month, window_size):
     return num_previous_file_needed
 
 
-def get_previous_months(year, month, window_size):
+def get_previous_months(year, month, window_size, url):
     """
     Retrieves and processes data for the specified number of previous months.
     Args:
@@ -69,12 +74,14 @@ def get_previous_months(year, month, window_size):
     # Create a datetime object for the given year and month
     previous_file_needed = num_previous_file_needed(year, month, window_size)
 
-    # downloads and concatenate data for previous months
+    # Calculate previous months
 
     all_data = []
     for i in range(1, previous_file_needed + 1):
         previous_date = datetime(year, month, 1) - relativedelta(months=i)
-        file_name = download_data(previous_date.year, previous_date.month)
+        file_name = download_data(previous_date.year, previous_date.month, url)[
+            "file_name"
+        ]
         extracted_df = extract_to_df(file_name)
         cleaned_df = transform_data.data_cleaning(
             extracted_df, previous_date.year, previous_date.month
