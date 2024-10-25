@@ -47,7 +47,7 @@ def remove_different_month_data(df, year, month):
     return df
 
 
-def calculate_monthly_average(df, month):
+def calculate_monthly_average(df, year, month):
     """
     Calculate the monthly average of trip distances.
 
@@ -60,7 +60,7 @@ def calculate_monthly_average(df, month):
     """
 
     monthly_avg = df["trip_distance"].mean()
-    result_df = pd.DataFrame({"month": [month], "monthly_average": [monthly_avg]})
+    result_df = pd.DataFrame({"year": [year], "month": [month], "monthly_average": [monthly_avg]})
     return result_df
 
 
