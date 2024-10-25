@@ -60,7 +60,9 @@ def calculate_monthly_average(df, year, month):
     """
 
     monthly_avg = df["trip_distance"].mean()
-    result_df = pd.DataFrame({"year": [year], "month": [month], "monthly_average": [monthly_avg]})
+    result_df = pd.DataFrame(
+        {"year": [year], "month": [month], "monthly_average": [monthly_avg]}
+    )
     return result_df
 
 

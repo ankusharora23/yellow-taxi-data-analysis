@@ -1,12 +1,8 @@
 import pytest
 import pandas as pd
-from src import extract_data, transform_data, load_data
-import sqlite3
-import requests
+from src import extract_data, transform_data
 import requests_mock
 import os
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
 
 
 # Preparing test environement
@@ -32,6 +28,7 @@ window_size = 20
 file_name = f"yellow_tripdata_{year}-{month:02}.parquet"
 url = f"https://dummy.cloudfront.net/trip-data/"
 initialisation()
+
 
 # Downloading dummy data for month 1 and 2
 def load_dummy_data(file_name):
@@ -91,10 +88,11 @@ def test_data_cleaning():
 def test_calculate_monthly_average():
     df = pd.read_parquet(f"tests/data/input/yellow_tripdata_{year}-{month:02}.parquet")
     cleaned_df = transform_data.data_cleaning(df, year, month)
-    result_df = transform_data.calculate_monthly_average(cleaned_df, month)
+    result_df = transform_data.calculate_monthly_average(cleaned_df, year, month)
     assert len(result_df) == 1
     result_row = result_df.iloc[0]
     assert result_row["month"] == 2
+    assert result_row["year"] == 2024
     expected_value = 3.950477
     assert result_row["monthly_average"] == pytest.approx(expected_value, rel=1e-5)
 

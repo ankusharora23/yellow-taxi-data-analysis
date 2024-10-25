@@ -1,5 +1,6 @@
 import sqlite3
 
+
 def store_results(df, db_name, table_name):
     """
     Stores the given DataFrame into a SQLite database table.
@@ -10,10 +11,8 @@ def store_results(df, db_name, table_name):
     Notes:
     If the table already exists, it will be replaced.
     """
-    #table name for monthly avg is "monthly_avg_trip_length"
-    #table name for rolling avg is "yellow_taxi_data"
+    # table name for monthly avg is "monthly_avg_trip_length"
+    # table name for rolling avg is "yellow_taxi_data"
     conn = sqlite3.connect(db_name)
-    df.to_sql(table_name, conn, if_exists='replace', index=False)
+    df.to_sql(table_name, conn, if_exists="replace", index=False)
     conn.close()
-
-    #add replace in the documentation

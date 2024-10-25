@@ -18,7 +18,7 @@ This project implements a data pipeline to process and analyze NYC Yellow Taxi t
 
 Ensure the following are installed:
 
-- Python 3.7 or higher
+- Python 3.11 or higher
 - SQLite (for local database usage)
 
 ## How to Run the Pipeline
