@@ -8,6 +8,7 @@ import os
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
+
 # Preparing test environement
 def initialisation():
 
@@ -23,6 +24,7 @@ def initialisation():
                 year, month, url, file_location="tests/data/input"
             )
 
+
 # Initialising test environment
 year = 2024
 month = 2
@@ -31,7 +33,7 @@ file_name = f"yellow_tripdata_{year}-{month:02}.parquet"
 url = f"https://dummy.cloudfront.net/trip-data/"
 initialisation()
 
-
+# Downloading dummy data for month 1 and 2
 def load_dummy_data(file_name):
 
     dummy_data_path = f"tests/data/input/{file_name}"
@@ -81,19 +83,27 @@ def test_get_previous_months(mock_requests):
 
 def test_data_cleaning():
     df = pd.read_parquet(f"tests/data/input/yellow_tripdata_{year}-{month:02}.parquet")
-    transform_data.data_cleaning(df, year, month)
+    assert len(df) == 3007526
+    result_df = transform_data.data_cleaning(df, year, month)
+    assert len(result_df) == 2939244
 
 
 def test_calculate_monthly_average():
-    pass
+    df = pd.read_parquet(f"tests/data/input/yellow_tripdata_{year}-{month:02}.parquet")
+    cleaned_df = transform_data.data_cleaning(df, year, month)
+    result_df = transform_data.calculate_monthly_average(cleaned_df, month)
+    assert len(result_df) == 1
+    result_row = result_df.iloc[0]
+    assert result_row["month"] == 2
+    expected_value = 3.950477
+    assert result_row["monthly_average"] == pytest.approx(expected_value, rel=1e-5)
 
 
-def calculate_rolling_average():
-    pass
-
-
-def run_pipeline():
-    pass
+def test_calculate_rolling_average():
+    df = pd.read_parquet(f"tests/data/input/yellow_tripdata_{year}-{month:02}.parquet")
+    assert "rolling_avg_distance" not in df.columns
+    result_df = transform_data.calculate_rolling_average(df, window_size)
+    assert "rolling_avg_distance" in result_df.columns
 
 
 def test_download_data(mock_requests):

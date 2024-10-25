@@ -23,11 +23,11 @@ def run_pipeline(args):
     df = transform_data.data_cleaning(df, args.year, args.month)
     logging.info(f"Data cleaned and number of records is {len(df)}")
 
-    monthly_avg = transform_data.calculate_monthly_average(df, args.month)
+    monthly_avg = transform_data.calculate_monthly_average(df, args.year, args.month)
     logging.info(f"Calculated monthly average trip lengths:{monthly_avg} ")
 
     load_data.store_results(monthly_avg, args.db_name, "monthly_avg_trip_length")
-    logging.info("Stored monthly average trip lengths")
+    logging.info("Stored monthly average trip lengths in database with table name monthly_avg_trip_length")
 
     concat_all_previous_data = extract_data.get_previous_months(
         args.year, args.month, args.window_size, url
@@ -46,7 +46,7 @@ def run_pipeline(args):
     logging.info("Calculated rolling average")
 
     load_data.store_results(rolling_avg, args.db_name, "yellow_taxi_data")
-    logging.info("Stored rolling average data")
+    logging.info("Stored rolling average data in database with table name yellow_taxi_data")
 
     logging.info("Pipeline finished")
 
